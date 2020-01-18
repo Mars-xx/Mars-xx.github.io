@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>目标检测：RetinaNet | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="文章目录[TOC] 背景介绍作者认为目标检测限制目标检测精度的一个主要原因是，训练阶段的正负样本极度不均衡。一般的Two-stage主要通过第一阶段的RPN网络，来去除大量背景负样本；而one-stage算法主要通过控制正负样本比以及OHEM（在线困难样本挖掘）技术来平衡正负样本。而在本文中，作者主要借助损失函数来控制正负样本，作者对传统的交叉熵分类损失函数进行了改进，提出了Focal Loss，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="目标检测：RetinaNet">
+<meta property="og:url" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="文章目录[TOC] 背景介绍作者认为目标检测限制目标检测精度的一个主要原因是，训练阶段的正负样本极度不均衡。一般的Two-stage主要通过第一阶段的RPN网络，来去除大量背景负样本；而one-stage算法主要通过控制正负样本比以及OHEM（在线困难样本挖掘）技术来平衡正负样本。而在本文中，作者主要借助损失函数来控制正负样本，作者对传统的交叉熵分类损失函数进行了改进，提出了Focal Loss，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/image/1578881809989.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/image/1578901140174.png">
+<meta property="article:published_time" content="2020-01-18T13:06:37.728Z">
+<meta property="article:modified_time" content="2020-01-14T15:03:58.000Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/image/1578881809989.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-目标检测：RetinaNet" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/" class="article-date">
+  <time datetime="2020-01-18T13:06:37.728Z" itemprop="datePublished">2020-01-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      目标检测：RetinaNet
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h1><p>[TOC]</p>
+<h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>作者认为目标检测限制目标检测精度的一个主要原因是，训练阶段的正负样本极度不均衡。一般的Two-stage主要通过第一阶段的RPN网络，来去除大量背景负样本；而one-stage算法主要通过控制正负样本比以及OHEM（在线困难样本挖掘）技术来平衡正负样本。而在本文中，作者主要借助损失函数来控制正负样本，作者对传统的交叉熵分类损失函数进行了改进，提出了Focal Loss，以降低简单易分样本的损失，从而聚焦在对难分样本的训练上。本文提出的目标检测算法 RetinaNet 兼顾了检测速度和检测速度，达到了SOTA的水平。</p>
+<h2 id="原理详解"><a href="#原理详解" class="headerlink" title="原理详解"></a>原理详解</h2><h3 id="Focal-Loss"><a href="#Focal-Loss" class="headerlink" title="Focal Loss"></a>Focal Loss</h3><p><strong>类别不均衡问题</strong></p>
+<p>one-stage 算法检测精度低的一个主要原因是类别不均衡，造成这个问题的原因主要有两个：1）由于绝大多数的样本是易分类样本，可以进一步学习的东西很少，导致训练过程十分低效；2）大量的简单负样本会主导训练的方向，从而影响特征的学习。因此需要对正负样本进行均衡，对难易样本进行均衡，常见的解决办法是进行困难负样本挖掘。</p>
+<p>two-stage 的检测算法，通过两步来控制样本不均衡现象：在第一阶段，使用候选区建议网络来极大地减少负样本数量，而且由于使用了建议算法，因此也剔除了绝大多数了易分负样本；在第二阶段，我们使用1:3的正负样本比进一步控制这种不平衡现象。不同于two-stage的策略， Focal Loss 旨在使用损失函数来解决 one-stage 检测算法中的类别不均衡问题。</p>
+<p><strong>Focal Loss</strong></p>
+<p>Focal Loss 是动态缩放的交叉熵损失函数，是为了解决one-stage目标检测算法在训练过程中正负样本极度不均衡而设计的分类损失函数。他主要通过动态地调节系数来控制正负样本比，系数会随着正确类别的置信度的增加而衰减，从而减少易分类样本的损失，使模型聚焦于对困难样本的学习。为了讲解Focal Loss，我们首先来回忆一下交叉熵损失函数，其定义如下：<br>$$<br>\mathrm{CE}(p, y)=\left{\begin{array}{ll}<br>{-\log (p)} &amp; {\text { if } y=1} \<br>{-\log (1-p)} &amp; {\text { otherwise }}<br>\end{array}\right.<br>$$<br>其中，$y \in{\pm 1}$ 表示正负类别，$p\in[0,1]$ 表示预测为正样本的概率，为了符号上方便，定义 $p_t$:<br>$$<br>\begin{aligned}<br>p_{\mathrm{t}} &amp;=\left{\begin{array}{ll}<br>{p} &amp; {\text { if } y=1} \<br>{1-p} &amp; {\text { otherwise }}<br>\end{array}\right.\<br>\end{aligned}<br>$$<br>然后，重写交叉熵损失函数如下：<br>$$<br>\mathrm{CE}(p, y)=\mathrm{CE}\left(p_{\mathrm{t}}\right)=-\log \left(p_{\mathrm{t}}\right)<br>$$<br>交叉熵损失函数如下图的蓝色曲线所示，可以看出即便对于易分类样本 ($p_t&gt;0.5$)，也依然存在着不小的损失，当大量的这些易分类样本的损失累加的时候，这些小的损失和会主导梯度下降方向，淹没难分样本的损失，从而使得网络学习不到那些少量的困难样本的特征。</p>
+<p><img src="image/1578881809989.png" alt="1578881809989"></p>
+<p>根据以往的经验，解决类别不平衡的一个办法，是引入调节因子 $\alpha \in [0,1]$ 来加权正样本，并用 $1-\alpha$ 来加权负样本，从而平衡正负样本比例，形如下式：<br>$$<br>\mathrm{CE}\left(p_{\mathrm{t}}\right)=-\alpha_t\log \left(p_{\mathrm{t}}\right)<br>$$<br>上述式子的引入，可以平衡正负样本，但是依旧无法平衡难易样本。为此，作者提出了Focal Loss，来控制上述两种不平衡现象，作者使用 $(1-p_t)^\gamma$ 作为调节因子（其中 $\gamma \geq 0$），这样，随着置信度概率增大，上述调节因子将减少，从而可以起到弱化简单样本损失的效果。<br>$$<br>\mathrm{FL}\left(p_{\mathrm{t}}\right)=-\left(1-p_{\mathrm{t}}\right)^{\gamma} \log \left(p_{\mathrm{t}}\right)<br>$$<br>上述 Focal Loss，使得调节因子可以对难易样本进行不同的加权，使得易分类样本的损失降低，并且这种衰减还随着置信度的提升，指数增长，这使得网络更加专注于对难分样本的训练，并且只需要聚焦于对参数 $\gamma$ 的调节，$\gamma$ 对损失的影响如上图所示，可以看出 Focal Loss 的的确可以对难易样本进行不同程度的衰减，很好的起到难以样本均衡的效果，当 $\gamma =0$ 的时候，Focal Loss 又退回到交叉熵损失函数。</p>
+<p>作者还表示，Focal Loss 还可以进一步优化成其他一些变体形式，并且经过反复调节，可以带来一些增益，但是相应的参数会变多，函数的复杂程度也会增高，如：<br>$$<br>\mathrm{FL}\left(p_{\mathrm{t}}\right)=-\alpha_{\mathrm{t}}\left(1-p_{\mathrm{t}}\right)^{\gamma} \log \left(p_{\mathrm{t}}\right)<br>$$<br>对于上述形式的Focal Loss，作者实验发现：$\gamma=2, \alpha=0.25$ 时的效果最好。并且实验证明，<strong>对简单负样本的抑制作用要比简单正样本的作用更大</strong>，这也符合目标检测网络的需求。</p>
+<h3 id="RetinaNet"><a href="#RetinaNet" class="headerlink" title="RetinaNet"></a>RetinaNet</h3><p>RetinaNet 的网络结构如图所示，由负责特征提取的FPN结构的 backbone 网络以及分类与回归两个子网络组成。</p>
+<p><img src="image/1578901140174.png" alt="1578901140174"></p>
+<p><strong>Backbone</strong></p>
+<p>RetinaNet 以 ResNet 作为基础网络，在它的基础上利使用自顶而下和横向连接的FPN结构，来实现多尺度特征融合，以构造兼具高分辨率和高语义特征的特征金字塔。FPN 输出的各层 feature map 的通道数固定为 256，FPN的许多具体细节不是至关重要的，但是这种结构是多尺度特征融合的结构很重要，可以提高网络最终的AP。</p>
+<p><strong>Anchors</strong> </p>
+<p>RetinaNet 在各层分别设置不同尺度和长宽比的 anchor，每个点设置三种不同的长宽比 <strong>{1:2,1:1,2:1}</strong>，并设置三种不同尺寸 <strong>{$2^0,2^{1/3},2^{2/3}$}</strong>， 因此每个点预测9个anchors。每个 anchor 负责预测一个 $K$ 维的类别矢量，和一个4维的位置矢量。RetinaNet 的匹配方法如下：将每个 anchor 分配给与之IOU大于0.5的 groundtruth ，作为该实际边界框的正样本，然后将IOU小于0.4的anchor，作为其负样本，阈值介于[0.4,0.5]之间的anchor不参与训练。根据上述方法完成匹配之后，根据每个anchor匹配到得groundtruth的类别，对$K$维类别矢量进行one-hot编码，将对应分量置1，其余分量置0，以标记正负样本。</p>
+<p><strong>分类网络</strong></p>
+<p>分类网络是一个全卷积神经网络，它的结构很简单，先由4层级联的 $W<em>H</em>256$ 的卷积层和 $ReLu$ 激活层进行转换，最后得到  $W<em>H</em>KA$ 的输出，表示对尺寸为 $W*H$ 的特征图上的每一个点的 $A$ 个 anchor，预测 $K$ 个类别概率。</p>
+<p><strong>回归网络</strong></p>
+<p>回归网络也是一个全卷积神经网络，它的结构与分类网络基本一致，最后得到  $W<em>H</em>4K$ 的输出，表示对尺寸为 $W*H$ 的特征图上的每一个点的 $A$ 个 anchors，预测4个位置信息，以用于回归坐标的偏移量。</p>
+<h3 id="训练过程"><a href="#训练过程" class="headerlink" title="训练过程"></a>训练过程</h3><p><strong>损失函数设置</strong></p>
+<p>SSD 等算法确定完正负样本后，为了控制正负样本比，仅选择少部分anchors来计算损失，而 Focal Loss 则对所有匹配上的正负样本来计算损失（注：仅是对所有匹配上的anchor进行归一化，而非所有的anchors），并对所有匹配上的anchors的损失进行归一化处理。这样做的理由是，Focal Loss 对易分样本的损失可以忽略不计，因此可以对所有匹配上的样本计算损失。作者实验通过实验发现：$\gamma=2, \alpha=0.25$ 时的效果最好。</p>
+<p><strong>模型初始化</strong></p>
+<p>对于二分类问题，一般会将为正负样初始化为等概率。然而，在正负样本极度不均衡的情况下，这种初始化会导致负样本的损失在训练初始阶段占据主导地位，从而导致训练不稳定。为了解决上述问题，我们将正样本的初始值设置的很小，从而加大其初始损失。具体地，作者将分类网络的最后一层的所有偏置设置为：$-log((1-p)/p)$ ，其中 $p$ 作者设置为 0.01，这样就可以得到一个很小的偏置，从而加大正样本的损失。作者通过实验证明，这种初始化策略无论对于普通的交叉熵损失函数还是对于 Focal Loss 都会提高训练的稳定性。</p>
+<h2 id="总结概括"><a href="#总结概括" class="headerlink" title="总结概括"></a>总结概括</h2><p>在本文中，作者认为类别不平衡是阻碍one-stage目标检测算法精度的主要原因，为了解决这个问题，作者对交叉熵损失函数进行改机，提出了Focal Loss 这种新的分类损失函数，通过损失函数来减弱这种不均衡现象，弱化简单样本的损失，从而使得网络更加专注于对难分样本的学习。作者还提出了 RetinaNet 这种单阶段的目标检测网络，来配合Focal Loss进行检测，实验证明，RetinaNet 兼顾了one-stage 算法的检测速度和two-stage算法的检测精度，达到了SOTA水平。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/" data-id="ck5jlw19p0002gil71xu4g6na" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          目标检测：FPN
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ASSD/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">目标检测：SSD</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E5%B0%8F%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/">目标检测：小目标检测</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">目标检测：相关基础知识</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/">目标检测：FPN</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/">目标检测：RetinaNet</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ASSD/">目标检测：SSD</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

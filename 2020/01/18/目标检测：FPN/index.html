@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>目标检测：FPN | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="文章目录[TOC] 背景介绍不同尺度和极端尺度的目标检测是目标检测的一项基本挑战，为了解决多尺度目标检测，先后涌现了图像金字塔结构，多尺度特征检测检测，和本文提出的特征金字塔网络（FPN）。相比于其他结构，特征金字塔网络可以很好的解决不同尺度的目标检测，FPN 还融合了不同层的特征，使得高分辨率的底层拥有了高层的语义特征，因此对小目标的检测更有利。 原理详解多尺度检测结构对比 识别不同尺寸的目标是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="目标检测：FPN">
+<meta property="og:url" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="文章目录[TOC] 背景介绍不同尺度和极端尺度的目标检测是目标检测的一项基本挑战，为了解决多尺度目标检测，先后涌现了图像金字塔结构，多尺度特征检测检测，和本文提出的特征金字塔网络（FPN）。相比于其他结构，特征金字塔网络可以很好的解决不同尺度的目标检测，FPN 还融合了不同层的特征，使得高分辨率的底层拥有了高层的语义特征，因此对小目标的检测更有利。 原理详解多尺度检测结构对比 识别不同尺寸的目标是">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/image/1578363231206.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/image/1578381917613.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/image/v2-38ecc58507df271897fdae605868d6e1_r.jpg">
+<meta property="og:image" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/image/1578452767464.png">
+<meta property="article:published_time" content="2020-01-18T13:06:37.728Z">
+<meta property="article:modified_time" content="2020-01-14T15:04:00.000Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/image/1578363231206.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-目标检测：FPN" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/" class="article-date">
+  <time datetime="2020-01-18T13:06:37.728Z" itemprop="datePublished">2020-01-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      目标检测：FPN
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h1><p>[TOC]</p>
+<h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>不同尺度和极端尺度的目标检测是目标检测的一项基本挑战，为了解决多尺度目标检测，先后涌现了图像金字塔结构，多尺度特征检测检测，和本文提出的特征金字塔网络（FPN）。相比于其他结构，特征金字塔网络可以很好的解决不同尺度的目标检测，FPN 还融合了不同层的特征，使得高分辨率的底层拥有了高层的语义特征，因此对小目标的检测更有利。</p>
+<h2 id="原理详解"><a href="#原理详解" class="headerlink" title="原理详解"></a>原理详解</h2><p><strong>多尺度检测结构对比</strong></p>
+<p>识别不同尺寸的目标是目标检测的一项基本挑战，为了解决多尺度目标检测，出现了以下四种基本结构，作者总结了以往的几种多尺度检测的方法，比对了他们的不足，然后引出了本文的特征金字塔网络——FPN。</p>
+<p><img src="../../../../%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/image/1578363231206.png" alt="1578363231206"></p>
+<ul>
+<li>a) 图像金字塔结构：早期的多尺度检测方法，使用图像金字塔构建特征金字塔，先将图像逐层降采样，然后分层提取特征，再逐层检测，显而易见的缺点就是速度很慢。</li>
+<li>b) 仅用顶层特征检测：Faster R-CNN 中用的方法，设置不同尺度的anchor，但是仅有顶层特征来检测，缺点是对小目标检测效果很不好，因为顶层分辨率低，小目标的特征容易消失。</li>
+<li>c) 多层特征分别检测：SSD 中用的方法，是对图像金字塔的改进，利用卷积网络自带的池化效果来构建不同尺度的特征图，再多层分别检测，相比图像金字塔提高了速度，而且也提高了对不同尺度的适应性。但是由于各种特征还是孤立的，没有进行融合，使得浅层分辨率高，但是语义信息不够，因此对小目标的检测还是不好。</li>
+<li>d) 特征金字塔网络：进一步改进，将多层特征进行融合，融合了高层的语义特征和浅层的高分辨率信息，使得各层的特征都进行了强化，提高了对小目标的检测能力，而且也没有额外增加过多运算量。</li>
+</ul>
+<p><strong>FPN 网络结构</strong></p>
+<p>FPN 将任意大小的图像作为输入，并以全卷积的方式输出不同尺寸的特征图，该过程与具体的backbone无关，作者使用了 ResNet 作为backbone，FPN 的结构如下，采用了自下而上、自上而下以及横向连接的结构进行多尺度特征融合。</p>
+<p><img src="image/1578381917613.png" alt="1578381917613"></p>
+<ul>
+<li><strong>自下而上结构</strong>：自下而上的结构，是backbone的前向传播，得到一些列不同层的 feature map ，各层的尺度相差2倍。在ResNet中使用了 {conv2, conv3, conv4, conv5}，由于 conv1的引入会消耗太多内存，故舍去。</li>
+<li><strong>自上而下结构</strong>：自上而下的结构，就是将具有较高语义信息的高层特征图进行上采样得到大尺度的特征图。</li>
+<li><strong>横向连接结构</strong>：横向连接就是将自下而上和自上而下的具有相同尺度的特征进行融合，这样融合的新特征图就同时具有了高层的语义特征和底层的高分辨率信息。</li>
+</ul>
+<p><strong>FPN的特征融合方式</strong></p>
+<p><img src="image/v2-38ecc58507df271897fdae605868d6e1_r.jpg" alt="preview"></p>
+<p>FPN 具体的融合方式如图所示，就是简单地将对应尺度的特征图进行逐元素相加，融合的过程中为了降低维度，首先，需要通过1x1的卷积核来减少原特征金字塔中各层特征图的通道数，将各层通道数固定为256；然后，对顶层特征进行2倍上采样，形成高分辨率特征图，再利用横向连接将上采样结果与原特征金字塔中对应的层进行逐像素相加得到融合结果；最后，再额外利用3x3的卷积层，将融合结果平滑一下，得到最终语义增强后的特征金字塔（ps：作者解释道特征可以直接按照像素相加，是因为做了端到端的训练，所以网络可以学习到怎么把底层的高分辨率信息和顶层的语义信息进行结合，以达到提高检测性能的目的）。</p>
+<p><strong>实验结果</strong></p>
+<p>作者利用FPN对RPN网络进行了优化，做了6组对比实验：(a) 基于conv4的RPN（原始的RPN）；(b）基于conv5的RPN； (c) FPN；(d) 只用自底向上的多层特征，没有自顶向下的特征； (e) 有自顶向下的特征，但是不用横向连接，只是单纯的增加特征的分辨率； (f) 用了自顶向下的特征，也用了横向特征融合，但是只用最后的P2作为预测。各组实验的对比的结果如下表所示：</p>
+<p><img src="image/1578452767464.png" alt="1578452767464"></p>
+<p>通过表格可以得到如下结论：</p>
+<ul>
+<li>对比实验(a)(b)(c)，可以看出基于特征金字塔的方式，极大的提高了各个尺度框的召回率。尤其是小物体的检测效果提升非常明显。</li>
+<li>对比实验(a)和(d)，可以看出单纯用各个层次的特征做预测，相比于只用conv4做预测，效果提升非常有限。</li>
+<li>对比实验(a)和(e)，可以看出单纯的放大特征图，但是不融合，反而性能会下降。</li>
+<li>对比实验(a)和(f)，可以看出单纯用融合度最高的特征层（P2）来做预测，提升效果也很有限。</li>
+<li>对比实验(c)和(f)，可以看出相比于（f），（c）有两点不同：一个是使用了多尺度的特征层做预测，另一个是不同尺度的框被映射到不同的特征层。从(c)的效果明显好于(f)来看，这种尺度信息分离的方式是非常必要的。</li>
+</ul>
+<p>通过以上对比可以看出，自顶向下的特征、横向连接、尺度分离、多个层次的预测是提升RPN性能几大功臣。</p>
+<h2 id="总结概括"><a href="#总结概括" class="headerlink" title="总结概括"></a>总结概括</h2><p>FPN 将顶层的语义信息和底层的高分辨率信息进行了很好的融合，得到一个增强后的特征金字塔，这个特征金字塔比未经过融合直接由自下而上生成的特征金字塔要具有更强的特征表达能力，因此检测的性能更好，而且并没有引入太多额外计算；FPN 也比经由图像金字塔生成的特征金字塔要省时省内存很多。因此，FPN 是解决多尺度目标检测和小目标检测的一个比较好的方法。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/" data-id="ck5jlw19n0001gil7enfyfk19" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          目标检测：相关基础知识
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">目标检测：RetinaNet</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E5%B0%8F%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/">目标检测：小目标检测</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">目标检测：相关基础知识</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/">目标检测：FPN</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/">目标检测：RetinaNet</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ASSD/">目标检测：SSD</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

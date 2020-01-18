@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>目标检测：相关基础知识 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="文章目录[TOC] 评价指标1. 精确度: 精确度又称“查准率”，就是所有被预测为正类的样本中，实际为正类的样本所占的比例，如下公式所示：$$Precision&#x3D;\frac{T P}{T P+F P}$$ 1&gt;&gt; 目标检测中指预测为目标中有多少为实际目标  2. 召回率: 召回率又称“查全率”，就是指所有的正样本，被成功预测为正类的比例，如下公式所示：$$Recall&#x3D;\frac{T">
+<meta property="og:type" content="article">
+<meta property="og:title" content="目标检测：相关基础知识">
+<meta property="og:url" content="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="文章目录[TOC] 评价指标1. 精确度: 精确度又称“查准率”，就是所有被预测为正类的样本中，实际为正类的样本所占的比例，如下公式所示：$$Precision&#x3D;\frac{T P}{T P+F P}$$ 1&gt;&gt; 目标检测中指预测为目标中有多少为实际目标  2. 召回率: 召回率又称“查全率”，就是指所有的正样本，被成功预测为正类的比例，如下公式所示：$$Recall&#x3D;\frac{T">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-01-18T13:06:37.732Z">
+<meta property="article:modified_time" content="2020-01-14T15:05:28.000Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-目标检测：相关基础知识" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="article-date">
+  <time datetime="2020-01-18T13:06:37.732Z" itemprop="datePublished">2020-01-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      目标检测：相关基础知识
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h1><p>[TOC]</p>
+<h2 id="评价指标"><a href="#评价指标" class="headerlink" title="评价指标"></a>评价指标</h2><p><strong>1. 精确度:</strong></p>
+<p>精确度又称“查准率”，就是所有被预测为正类的样本中，实际为正类的样本所占的比例，如下公式所示：<br>$$<br>Precision=\frac{T P}{T P+F P}<br>$$</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; 目标检测中指预测为目标中有多少为实际目标</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 召回率:</strong></p>
+<p>召回率又称“查全率”，就是指所有的正样本，被成功预测为正类的比例，如下公式所示：<br>$$<br>Recall=\frac{T P}{T P+F N}<br>$$</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; 目标检测中指所有的目标中，有多少被成功找出来了</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 虚警率:</strong></p>
+<p>虚警率又称误检率，就是所有被预测为正类的样本中，实际为正类的样本所占的比例，如下公式所示：<br>$$<br>1 - Precision=\frac{F P}{T P+F P}<br>$$</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; 目标检测中指被预测为目标的样本中有多伪目标</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 漏警率:</strong></p>
+<p>漏警率又称漏检率，就是指所有的正样本，被成功预测为正类的比例，如下公式所示：<br>$$<br>1 - Recall=\frac{F N}{T P+F N}<br>$$</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt; 目标检测中指所有的目标中，有多少未被检测出来</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="类别不平衡"><a href="#类别不平衡" class="headerlink" title="类别不平衡"></a>类别不平衡</h2><p><strong>目标检测任务中，样本包括哪些类别呢？</strong> </p>
+<ul>
+<li>正样本：标签区域内的图像区域，即目标图像块；</li>
+<li>负样本：标签区域以外的图像区域，即图像背景区域；</li>
+<li>易分正样本：容易正确分类的正样本，在实际训练过程中，该类占总体样本的比重非常高，单个样本的损失函数较小，但是累计的损失函数会主导损失函数；</li>
+<li>易分负样本：容易正确分类的负样本，在实际训练过程中，该类占的比重非常高，单个样本的损失函数较小，但是累计的损失函数会主导损失函数；</li>
+<li>难分正样本：错分成负样本的正样本，这部分样本在训练过程中单个样本的损失函数教高，但是该类占总体样本的比例教小；</li>
+<li>难分负样本：错分成正样本的负样本，这部分样本在训练过程中单个样本的损失函数教高，但是该类占总体样本的比例教小。</li>
+</ul>
+<p><strong>那么什么是样本不平衡问题？</strong></p>
+<p>所谓的样本不平衡问题是指在训练的时候各个类别的样本数量极不均衡。以基于深度学习的单阶段目标检测为例，样本类别不均衡主要体现在两方面：<strong>正负样本不均衡</strong>（正负样本比例达到 1:1000）和<strong>难易样本不均衡</strong>（简单样本主导 loss）。一般在目标检测任务框架中，保持正负样本的比例为 1:3（经验值）。</p>
+<p>对于一个样本，如果它能很容易地被正确分类，那么这个样本对模型来说就是一个简单样本，模型很难从这个样本中得到更多的信息；而对于一个分错的样本，它对模型来说就是一个困难的样本，它更能指导模型优化的方向。</p>
+<p>对于单阶段分类器来说，简单样本的数量非常大，他们产生的累计贡献在模型更新中占主导作用，而这部分样本本身就能被模型很好地分类，所以这部分的参数更新并不会改善模型的判断能力，这会导致整个训练变得低效。</p>
+<p><strong>实际训练过程中如何划分正负样本训练集？</strong></p>
+<p>近年来，不少的研究者针对样本不均衡问题进行了深入研究，比较典型的有 <strong>OHEM</strong> [1]（在线困难样本挖掘）、<strong>S-OHEM</strong>[2]、<strong>A-Fast-RCNN</strong>[3]、<strong>Focal Loss</strong>[4]、<strong>GHM</strong>[5]（梯度均衡化）</p>
+<blockquote>
+<p> 参考博文：<a href="http://www.sohu.com/a/306064501_500659" target="_blank" rel="noopener">http://www.sohu.com/a/306064501_500659</a></p>
+</blockquote>
+<h2 id="Anchor机制"><a href="#Anchor机制" class="headerlink" title="Anchor机制"></a>Anchor机制</h2><p>Anchor的本质还是候选框，只是相比滑动窗这种粗暴的方法，减少了很多框的数量，而且会结合位置回归，从而可以更加准确地定位出目标的位置。Anchor技术将问题转换为”这个固定参考框中有没有认识的目标（分类），如果有，这个目标框偏离参考框多远，需要怎么调整（回归）”。在设计了不同尺度和比例的候选框后，DNN学习如何将这些候选框进行分类：是否包含object和包含什么类别的object，对于postive的anchor会学习如何将其回归到正确的位置。它扮演的角色和传统检测算法中的滑动窗口等机制比较类似。</p>
+<p>Anchor based 目标检测算法的输入是图片、输出的是一个表示各个anchor的classification和localization的预测值。以人脸检测为例，并假设每张图像设置了N个anchor，那么输入一张待检测图像，输出的就是一个[N, (2 + 4)]维矩阵，其中2表示分类的预测，是否为人脸，4表示（x,y,w,h）相对于anchor的offset的预测。</p>
+<p><strong>Anchor based的局限性：</strong></p>
+<ol>
+<li>Anchor的设置需要手动去设计，对不同数据集也需要不同的设计，造成使用较为麻烦。</li>
+<li>离散的 anchor 尺度设定会导致一些物体无法很好的匹配到 anchor，从而导致遗漏。</li>
+<li>Anchor的匹配机制使得极端尺度的目标被匹配到的概率相对于大小适中的目标概率低很多，导致网络不太容易学习好这些极端样本的特征。</li>
+<li>Anchor的庞大数量使得存在严重的正负不平衡问题，正样本相对于负样本少很多，需要控制正负样本比。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" data-id="ck5jlw19s0005gil742ju2vw4" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E5%B0%8F%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          目标检测：小目标检测
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">目标检测：FPN</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E5%B0%8F%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/">目标检测：小目标检测</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9A%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">目标检测：相关基础知识</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9AFPN/">目标检测：FPN</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ARetinaNet/">目标检测：RetinaNet</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/18/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%EF%BC%9ASSD/">目标检测：SSD</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
